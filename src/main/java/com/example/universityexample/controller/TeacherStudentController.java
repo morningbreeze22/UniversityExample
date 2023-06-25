@@ -9,9 +9,7 @@ import com.example.universityexample.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,13 +30,13 @@ public class TeacherStudentController {
 
 
 
-    @GetMapping("/studentsof/{id}")
-    public ResponseEntity<?> getStudentsByTeacherId(@PathVariable Integer id){
+    @RequestMapping(value="/relation",params="teacher",method = RequestMethod.GET)
+    public ResponseEntity<?> getStudentsByTeacherId(@RequestParam Integer teacher){
         //List<TeacherStudent> result = teacherStudentService.getTeachersByStudentId(id);
 
-        Optional<Teacher> teacher = teacherService.getTeacherById(id);
-        if(teacher.isPresent()){
-            List<String> teachers = teacher.get().getTeacherStudents().stream()
+        Optional<Teacher> teacherFound = teacherService.getTeacherById(teacher);
+        if(teacherFound.isPresent()){
+            List<String> teachers = teacherFound.get().getTeacherStudents().stream()
                     .map((TeacherStudent a)->(a.getStu().getId() + "." + a.getStu().getName()))
                     .toList();
             return new ResponseEntity<>(teachers ,HttpStatus.OK);
@@ -48,14 +46,15 @@ public class TeacherStudentController {
 
     }
 
-    @GetMapping("/teachersof/{id}")
-    public ResponseEntity<?> getTeachersByStudentId(@PathVariable Integer id){
+
+    @RequestMapping(value="/relation",params="student",method = RequestMethod.GET)
+    public ResponseEntity<?> getTeachersByStudentId(@RequestParam Integer student){
         //List<TeacherStudent> result = teacherStudentService.getStudentsByTeacherID(id);
 
 
-        Optional<Student> student = studentService.getStudentById(id);
-        if(student.isPresent()){
-            List<String> students = student.get().getTeacherStudents().stream()
+        Optional<Student> studentFound = studentService.getStudentById(student);
+        if(studentFound.isPresent()){
+            List<String> students = studentFound.get().getTeacherStudents().stream()
                     .map((TeacherStudent a)->(a.getTeacher().getId() + "." + a.getTeacher().getName()))
                     .toList();
             return new ResponseEntity<>(students ,HttpStatus.OK);
